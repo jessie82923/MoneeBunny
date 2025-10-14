@@ -1,0 +1,44 @@
+{
+  "name": "moneebunny",
+  "version": "1.0.0",
+  "description": "A budgeting tool to help users manage their finances effectively.",
+  "main": "src/app.ts",
+  "scripts": {
+    "start": "ts-node src/app.ts",
+    "build": "tsc",
+    "test": "jest",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx src/config/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.17.1",
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^6.17.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/express": "^4.17.8",
+    "@types/jest": "^26.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.7.2",
+    "jest": "^26.6.3",
+    "ts-node": "^9.1.1",
+    "typescript": "^5.9.3"
+  },
+  "keywords": [
+    "budgeting",
+    "finance",
+    "tool"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
