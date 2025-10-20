@@ -5,6 +5,7 @@ import authRoutes from './routes/auth';
 import budgetRoutes from './routes/budgets';
 import transactionRoutes from './routes/transactions';
 import userRoutes from './routes/users';
+import lineRoutes from './routes/line';
 import { config } from 'dotenv';
 
 config();
@@ -26,6 +27,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/line', lineRoutes);
 
 // Export app for testing
 export { app };

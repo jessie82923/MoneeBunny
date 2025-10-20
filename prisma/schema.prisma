@@ -17,8 +17,23 @@ model User {
   updatedAt    DateTime      @updatedAt
   budgets      Budget[]
   transactions Transaction[]
+  lineUser     LineUser?
 
   @@map("users")
+}
+
+model LineUser {
+  id            String   @id @default(cuid())
+  lineUserId    String   @unique // LINE 平台的 userId
+  displayName   String? // LINE 顯示名稱
+  pictureUrl    String? // LINE 頭像 URL
+  statusMessage String? // LINE 狀態訊息
+  userId        String   @unique // 關聯到 MoneeBunny User
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("line_users")
 }
 
 model Budget {

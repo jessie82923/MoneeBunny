@@ -16,6 +16,7 @@
     "db:seed": "tsx src/config/seed.ts"
   },
   "dependencies": {
+    "@line/bot-sdk": "^10.3.0",
     "@prisma/client": "^6.17.1",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.19.0",
