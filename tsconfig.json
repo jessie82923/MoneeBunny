@@ -1,14 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
+    "target": "ES2022",   //when compile to js: 輸出的JS版本
+    "module": "commonjs", //模組系統:決定 import(ESM)/require(CommonJS)機制(語法轉換、加載、解析...)
+    "lib": ["ES2022"],    //when coding: 寫程式時可以用那些API(.xx())
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "typeRoots": ["./node_modules/@types", "./src/types"] //第一個:第三方type, 第二個:自訂義type
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "exclude": ["node_modules", "**/*.spec.ts", "dist"]
 }

@@ -30,6 +30,18 @@ export class TransactionService {
     async getAllTransactions(): Promise<Transaction[]> {
         return await prisma.transaction.findMany();
     }
+
+    async getTransactionsByUserId(userId: string): Promise<Transaction[]> {
+        return await prisma.transaction.findMany({
+            where: { userId },
+            include: {
+                budget: true
+            },
+            orderBy: {
+                date: 'desc'
+            }
+        });
+    }
 }
 
 export default new TransactionService();

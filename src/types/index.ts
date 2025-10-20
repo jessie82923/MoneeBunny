@@ -16,22 +16,13 @@ export type TransactionWithRelations = Transaction & {
   budget?: Budget;
 };
 
-// 建立和更新的類型
-export type CreateUserInput = Pick<User, 'email' | 'password' | 'firstName' | 'lastName'>;
-export type UpdateUserInput = Partial<Pick<User, 'firstName' | 'lastName' | 'email'>>;
-
-export type CreateBudgetInput = Pick<Budget, 'name' | 'amount' | 'period' | 'startDate' | 'endDate'>;
-export type UpdateBudgetInput = Partial<CreateBudgetInput>;
-
-export type CreateTransactionInput = Pick<Transaction, 'amount' | 'description' | 'category' | 'type' | 'date' | 'budgetId'>;
-export type UpdateTransactionInput = Partial<CreateTransactionInput>;
-
 // API 回應類型
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
   message?: string;
+  details?: Array<{ field: string; message: string }>; // For validation errors
 }
 
 // 認證相關
@@ -39,3 +30,7 @@ export interface AuthTokenPayload {
   userId: string;
   email: string;
 }
+
+// Note: CreateInput 和 UpdateInput 型別已移至 validators 資料夾
+// 請從 validators 匯入，例如：
+// import type { RegisterInput, CreateBudgetInput } from '../validators';

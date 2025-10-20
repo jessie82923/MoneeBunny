@@ -30,6 +30,18 @@ class BudgetService {
     async getAllBudgets(): Promise<Budget[]> {
         return await prisma.budget.findMany();
     }
+
+    async getBudgetsByUserId(userId: string): Promise<Budget[]> {
+        return await prisma.budget.findMany({
+            where: { userId },
+            include: {
+                transactions: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+    }
 }
 
 export default new BudgetService();

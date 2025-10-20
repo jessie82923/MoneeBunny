@@ -10,21 +10,5 @@ const prisma = new PrismaClient({
     : ['error'],
 });
 
-/**
- * Gracefully disconnect from database on process exit
- */
-const gracefulShutdown = async (): Promise<void> => {
-  try {
-    await prisma.$disconnect();
-    console.log('Database connection closed.');
-  } catch (error) {
-    console.error('Error closing database connection:', error);
-    process.exit(1);
-  }
-};
-
-process.on('SIGINT', gracefulShutdown);
-process.on('SIGTERM', gracefulShutdown);
-process.on('beforeExit', gracefulShutdown);
 
 export default prisma;

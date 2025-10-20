@@ -1,10 +1,13 @@
+/// <reference path="../types/express.d.ts" />
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 const secretKey = process.env.JWT_SECRET || 'your_secret_key';
 
 interface JwtPayload {
-  id: string;
+  userId?: number;
+  id?: string;
+  email?: string;
   role?: string;
 }
 
@@ -12,18 +15,24 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
     const token = req.headers['authorization']?.split(' ')[1];
 
     if (!token) {
-        res.status(401).json({ message: 'No token provided' });
+        res.status(401).json({ 
+            success: false,
+            error: 'No token provided' 
+        });
         return;
     }
 
     jwt.verify(token, secretKey, (err: Error | null, decoded: unknown) => {
         if (err) {
-            res.status(403).json({ message: 'Failed to authenticate token' });
+            res.status(403).json({ 
+                success: false,
+                error: 'Failed to authenticate token' 
+            });
             return;
         }
 
         const payload = decoded as JwtPayload;
-        req.userId = payload.id;
+        req.userId = (payload.userId || payload.id) as string;
         req.userRole = payload.role;
         next();
     });
@@ -32,7 +41,10 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
 export const authorize = (roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction): void => {
         if (!req.userId) {
-            res.status(401).json({ message: 'Unauthorized' });
+            res.status(401).json({ 
+                success: false,
+                error: 'Unauthorized' 
+            });
             return;
         }
 
@@ -40,7 +52,10 @@ export const authorize = (roles: string[]) => {
         const userRole = req.userRole; // This should be set during authentication
 
         if (!userRole || !roles.includes(userRole)) {
-            res.status(403).json({ message: 'Forbidden' });
+            res.status(403).json({ 
+                success: false,
+                error: 'Forbidden' 
+            });
             return;
         }
 
