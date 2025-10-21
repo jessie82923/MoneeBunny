@@ -5,7 +5,6 @@
 export type CommandType = 
   | 'TODAY_EXPENSE'     // 今日支出
   | 'MONTH_EXPENSE'     // 本月支出
-  | 'MONTH_BUDGET'      // 本月預算
   | 'STATISTICS'        // 統計報表
   | 'HELP'              // 幫助
   | 'UNKNOWN';          // 未知指令
@@ -26,9 +25,6 @@ const COMMAND_KEYWORDS: Record<string, CommandType> = {
   '本月': 'MONTH_EXPENSE',
   '這個月': 'MONTH_EXPENSE',
   '月支出': 'MONTH_EXPENSE',
-  
-  '預算': 'MONTH_BUDGET',
-  '本月預算': 'MONTH_BUDGET',
   
   '統計': 'STATISTICS',
   '報表': 'STATISTICS',
@@ -82,7 +78,6 @@ export function getCommandHelp(): string {
 【查詢指令】
 • 今日支出
 • 本月支出
-• 本月預算
 • 統計
 
 【分類關鍵字】

@@ -16,14 +16,6 @@ export {
   type UpdateProfileInput,
 } from './authSchemas';
 
-// Budget schemas
-export {
-  createBudgetSchema,
-  updateBudgetSchema,
-  type CreateBudgetInput,
-  type UpdateBudgetInput,
-} from './budgetSchemas';
-
 // Transaction schemas
 export {
   createTransactionSchema,
@@ -35,7 +27,6 @@ export {
 // Re-export all types for convenience
 export type {
   UserWithRelations,
-  BudgetWithRelations,
   TransactionWithRelations,
   ApiResponse,
   AuthTokenPayload,

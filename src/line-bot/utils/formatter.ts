@@ -54,18 +54,3 @@ export function getTodayRange(): [Date, Date] {
   
   return [today, tomorrow];
 }
-
-/**
- * Format budget percentage with status emoji
- * 
- * @param spent - Amount spent
- * @param budget - Budget amount
- * @returns Status emoji (✅/🟡/⚠️)
- */
-export function getBudgetStatusEmoji(spent: number, budget: number): string {
-  const percentage = (spent / budget) * 100;
-  
-  if (percentage > 100) return '⚠️';
-  if (percentage > 80) return '🟡';
-  return '✅';
-}

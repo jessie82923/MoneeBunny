@@ -2,9 +2,8 @@ import { MessageEvent } from '@line/bot-sdk';
 import { lineClient } from '../lineClient';
 import { formatAmount } from '../parsers/transactionParser';
 import { getCommandHelp } from '../parsers/commandParser';
-import { getCategoryEmoji, getStartOfMonth, getTodayRange, getBudgetStatusEmoji } from '../utils/formatter';
+import { getCategoryEmoji, getStartOfMonth, getTodayRange } from '../utils/formatter';
 import prisma from '../../config/database';
-import BudgetService from '../../services/budgetService';
 
 /**
  * Handle query commands from LINE user
@@ -26,10 +25,6 @@ export async function handleQueryCommand(
         
       case 'MONTH_EXPENSE':
         await handleMonthExpense(event, userId);
-        break;
-        
-      case 'MONTH_BUDGET':
-        await handleMonthBudget(event, userId);
         break;
         
       case 'STATISTICS':
@@ -160,61 +155,6 @@ async function handleMonthExpense(event: MessageEvent, userId: string): Promise<
 }
 
 /**
- * Handle "本月預算" (this month's budget) command
- * Shows budget status with spent/remaining amounts
- * 
- * @param event - LINE message event
- * @param userId - MoneeBunny user ID
- */
-async function handleMonthBudget(event: MessageEvent, userId: string): Promise<void> {
-  const budgets = await BudgetService.getBudgetsByUserId(userId);
-  
-  if (budgets.length === 0) {
-    await lineClient.replyMessage(event.replyToken, {
-      type: 'text',
-      text: '📋 尚未設定預算\n\n請先在網頁版建立預算規劃',
-    });
-    return;
-  }
-  
-  const startOfMonth = getStartOfMonth();
-  
-  const details = await Promise.all(
-    budgets.map(async (budget: any) => {
-      const spent = await prisma.transaction.aggregate({
-        where: {
-          userId,
-          budgetId: budget.id,
-          type: 'EXPENSE',
-          date: {
-            gte: startOfMonth,
-          },
-        },
-        _sum: {
-          amount: true,
-        },
-      });
-      
-      const spentAmount = Number(spent._sum.amount || 0);
-      const budgetAmount = Number(budget.amount);
-      const remaining = budgetAmount - spentAmount;
-      const percentage = Math.round((spentAmount / budgetAmount) * 100);
-      
-      const status = getBudgetStatusEmoji(spentAmount, budgetAmount);
-      
-      return `${status} ${budget.name}\n` +
-             `   已用: ${formatAmount(spentAmount)} / ${formatAmount(budgetAmount)}\n` +
-             `   剩餘: ${formatAmount(remaining)} (${percentage}%)`;
-    })
-  );
-  
-  await lineClient.replyMessage(event.replyToken, {
-    type: 'text',
-    text: `📋 本月預算執行狀況\n\n${details.join('\n\n')}`,
-  });
-}
-
-/**
  * Handle "統計" (statistics) command
  * 
  * @param event - LINE message event
@@ -227,7 +167,6 @@ async function handleStatistics(event: MessageEvent, userId: string): Promise<vo
     text: '📊 詳細統計報表功能開發中...\n\n' +
           '目前可使用：\n' +
           '• 今日支出\n' +
-          '• 本月支出\n' +
-          '• 本月預算',
+          '• 本月支出',
   });
 }

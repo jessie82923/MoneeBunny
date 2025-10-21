@@ -8,8 +8,7 @@ import { app } from '../../src/app';
 
 describe('Transaction API', () => {
   let authToken: string;
-  let budgetId: string; // Changed from number to string
-  let transactionId: string; // Changed from number to string
+  let transactionId: string;
 
   const testUser = {
     email: `transaction-test-${Date.now()}@example.com`,
@@ -41,20 +40,6 @@ describe('Transaction API', () => {
       });
 
     authToken = loginResponse.body.data.token;
-
-    // Create a budget for testing
-    const budgetResponse = await request(app)
-      .post('/api/budgets')
-      .set('Authorization', `Bearer ${authToken}`)
-      .send({
-        name: 'Food', // Changed from category to name
-        amount: 5000,
-        period: 'monthly',
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-01-31'),
-      });
-
-    budgetId = budgetResponse.body.data.id;
   });
 
   describe('POST /api/transactions', () => {
@@ -62,17 +47,13 @@ describe('Transaction API', () => {
       const response = await request(app)
         .post('/api/transactions')
         .set('Authorization', `Bearer ${authToken}`)
-        .send({
-          ...testTransaction,
-          budgetId,
-        })
+        .send(testTransaction)
         .expect(201);
 
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveProperty('id');
       expect(response.body.data.type).toBe(testTransaction.type);
-      expect(Number(response.body.data.amount)).toBe(testTransaction.amount); // Decimal is returned as string
-      expect(response.body.data.budgetId).toBe(budgetId);
+      expect(Number(response.body.data.amount)).toBe(testTransaction.amount);
 
       transactionId = response.body.data.id;
     });
@@ -179,13 +160,5 @@ describe('Transaction API', () => {
 
       expect(response.body.success).toBe(false);
     });
-  });
-
-  // Clean up
-  afterAll(async () => {
-    // Delete test budget
-    await request(app)
-      .delete(`/api/budgets/${budgetId}`)
-      .set('Authorization', `Bearer ${authToken}`);
   });
 });

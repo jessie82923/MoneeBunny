@@ -2,7 +2,6 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import prisma from './config/database';
 import authRoutes from './routes/auth';
-import budgetRoutes from './routes/budgets';
 import transactionRoutes from './routes/transactions';
 import userRoutes from './routes/users';
 import lineRoutes from './routes/line';
@@ -31,7 +30,6 @@ prisma.$connect()
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/budgets', budgetRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/line', lineRoutes);

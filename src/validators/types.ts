@@ -11,11 +11,6 @@ export type {
 } from './authSchemas';
 
 export type {
-  CreateBudgetInput,
-  UpdateBudgetInput,
-} from './budgetSchemas';
-
-export type {
   CreateTransactionInput,
   UpdateTransactionInput,
 } from './transactionSchemas';
@@ -23,7 +18,6 @@ export type {
 // Re-export Prisma relation types, classes import types can only do once in here
 export type {
   UserWithRelations,
-  BudgetWithRelations,
   TransactionWithRelations,
   ApiResponse,
   AuthTokenPayload,

@@ -1,19 +1,12 @@
-import type { User, Budget, Transaction } from '@prisma/client';
+import type { User, Transaction } from '@prisma/client';
 
 // 擴展 Prisma 生成的類型
 export type UserWithRelations = User & {
-  budgets?: Budget[];
-  transactions?: Transaction[];
-};
-
-export type BudgetWithRelations = Budget & {
-  user?: User;
   transactions?: Transaction[];
 };
 
 export type TransactionWithRelations = Transaction & {
   user?: User;
-  budget?: Budget;
 };
 
 // API 回應類型
@@ -33,4 +26,4 @@ export interface AuthTokenPayload {
 
 // Note: CreateInput 和 UpdateInput 型別已移至 validators 資料夾
 // 請從 validators 匯入，例如：
-// import type { RegisterInput, CreateBudgetInput } from '../validators';
+// import type { RegisterInput, CreateTransactionInput } from '../validators';
