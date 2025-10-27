@@ -2,7 +2,10 @@ import { MessageEvent } from '@line/bot-sdk';
 import { lineClient } from '../lineClient';
 import { formatAmount } from '../parsers/transactionParser';
 import { getCommandHelp } from '../parsers/commandParser';
-import { getCategoryEmoji, getStartOfMonth, getTodayRange } from '../utils/formatter';
+import { getStartOfMonth, getTodayRange } from '../utils/formatter';
+import { createMonthlyReportCard } from '../templates/flex/monthlyReportCard';
+import { createDailyReportCard } from '../templates/flex/dailyReportCard';
+import { queryQuickReply, mainMenuQuickReply } from '../templates/quickReply';
 import prisma from '../../config/database';
 
 /**
@@ -35,6 +38,7 @@ export async function handleQueryCommand(
         await lineClient.replyMessage(event.replyToken, {
           type: 'text',
           text: getCommandHelp(),
+          quickReply: mainMenuQuickReply,
         });
         break;
         
@@ -69,7 +73,7 @@ async function handleTodayExpense(event: MessageEvent, userId: string): Promise<
       },
     },
     orderBy: {
-      date: 'desc',
+      amount: 'desc',
     },
   });
   
@@ -77,23 +81,33 @@ async function handleTodayExpense(event: MessageEvent, userId: string): Promise<
     await lineClient.replyMessage(event.replyToken, {
       type: 'text',
       text: '📅 今日尚無支出記錄',
+      quickReply: mainMenuQuickReply,
     });
     return;
   }
   
   const total = transactions.reduce((sum, t) => sum + Number(t.amount), 0);
   
-  const details = transactions
-    .map(t => `• ${t.description || t.category}: ${formatAmount(Number(t.amount))}`)
-    .join('\n');
+  const transactionItems = transactions.map(t => ({
+    category: t.category,
+    amount: Number(t.amount),
+    description: t.description || ''
+  }));
   
-  await lineClient.replyMessage(event.replyToken, {
-    type: 'text',
-    text: `📅 今日支出報表\n\n` +
-          `${details}\n\n` +
-          `────────────────\n` +
-          `💰 總計: ${formatAmount(total)}`,
+  // 使用 Flex Message 月報表卡片
+  const flexMessage = createDailyReportCard({
+    date: new Date(),
+    totalExpense: total,
+    transactions: transactionItems,
   });
+
+  await lineClient.replyMessage(event.replyToken, [
+    flexMessage,
+    {
+      type: 'text',
+      text: '需要其他報表嗎？',
+      quickReply: queryQuickReply,
+    },]);
 }
 
 /**
@@ -130,28 +144,58 @@ async function handleMonthExpense(event: MessageEvent, userId: string): Promise<
     await lineClient.replyMessage(event.replyToken, {
       type: 'text',
       text: '📊 本月尚無支出記錄',
+      quickReply: mainMenuQuickReply,
     });
     return;
   }
   
   const total = categoryStats.reduce((sum, cat) => sum + Number(cat._sum.amount || 0), 0);
   
-  const details = categoryStats
-    .map(cat => {
-      const emoji = getCategoryEmoji(cat.category);
-      return `${emoji} ${cat.category}: ${formatAmount(Number(cat._sum.amount || 0))}`;
-    })
-    .join('\n');
+  // 計算百分比
+  const categoriesWithPercentage = categoryStats.map(cat => ({
+    category: cat.category,
+    amount: Number(cat._sum.amount || 0),
+    percentage: Math.round((Number(cat._sum.amount || 0) / total) * 100),
+  }));
+  
+  // 取得收入總計
+  const incomeTotal = await prisma.transaction.aggregate({
+    where: {
+      userId,
+      type: 'INCOME',
+      date: {
+        gte: startOfMonth,
+      },
+    },
+    _sum: {
+      amount: true,
+    },
+  });
   
   const month = startOfMonth.getMonth() + 1;
+  const year = startOfMonth.getFullYear();
+  const totalIncomeValue = Number(incomeTotal._sum.amount || 0);
+  const balance = totalIncomeValue - total;
   
-  await lineClient.replyMessage(event.replyToken, {
-    type: 'text',
-    text: `📊 本月支出報表 (${month}月)\n\n` +
-          `${details}\n\n` +
-          `────────────────\n` +
-          `💰 總計: ${formatAmount(total)}`,
+  // 使用 Flex Message 月報表卡片
+  const flexMessage = createMonthlyReportCard({
+    month,
+    year,
+    totalExpense: total,
+    totalIncome: totalIncomeValue,
+    balance,
+    topCategories: categoriesWithPercentage,
+    categories: categoriesWithPercentage,
   });
+  
+  await lineClient.replyMessage(event.replyToken, [
+    flexMessage,
+    {
+      type: 'text',
+      text: '需要其他報表嗎？',
+      quickReply: queryQuickReply,
+    },
+  ]);
 }
 
 /**
@@ -168,5 +212,6 @@ async function handleStatistics(event: MessageEvent, userId: string): Promise<vo
           '目前可使用：\n' +
           '• 今日支出\n' +
           '• 本月支出',
+    quickReply: mainMenuQuickReply,
   });
 }

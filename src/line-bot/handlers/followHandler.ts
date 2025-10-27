@@ -1,5 +1,6 @@
 import { FollowEvent, WebhookEvent } from '@line/bot-sdk';
 import { lineClient } from '../lineClient';
+import { mainMenuQuickReply } from '../templates/quickReply';
 import prisma from '../../config/database';
 
 /**
@@ -62,12 +63,7 @@ export async function handleFollowEvent(event: FollowEvent): Promise<void> {
       {
         type: 'text',
         text: '📝 快速記帳範例：\n・早餐 50\n・午餐 120 麵店\n・薪水 50000\n\n💡 輸入「幫助」查看更多功能',
-        quickReply: {
-          items: [
-            { type: 'action', action: { type: 'message', label: '📖 幫助', text: '幫助' } },
-            { type: 'action', action: { type: 'message', label: '💰 今日支出', text: '今日支出' } },
-          ],
-        },
+        quickReply: mainMenuQuickReply,
       },
     ]);
     

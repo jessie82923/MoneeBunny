@@ -2,18 +2,11 @@ import { MessageEvent } from '@line/bot-sdk';
 import { lineClient } from '../lineClient';
 import { formatAmount } from '../parsers/transactionParser';
 import { getStartOfMonth } from '../utils/formatter';
+import { createTransactionCard } from '../templates/flex/transactionCard';
+import { mainMenuQuickReply } from '../templates/quickReply';
 import prisma from '../../config/database';
 import TransactionService from '../../services/transactionService';
-
-/**
- * Parsed transaction data from user message
- */
-interface ParsedTransaction {
-  type: string;
-  amount: number;
-  category?: string;
-  description?: string;
-}
+import type { ParsedTransaction } from '../types';
 
 /**
  * Handle transaction recording from LINE user message
@@ -60,19 +53,25 @@ export async function handleTransactionRecord(
     
     const totalAmount = monthlyTotal._sum.amount || 0;
     
-    // Format reply message
-    const emoji = parsed.type === 'INCOME' ? '💰' : '💸';
-    const typeText = parsed.type === 'INCOME' ? '收入' : '支出';
-    
-    await lineClient.replyMessage(event.replyToken, {
-      type: 'text',
-      text: `${emoji} 已記錄${typeText}\n\n` +
-            `📝 ${transaction.description || transaction.category}\n` +
-            `💵 ${formatAmount(Number(transaction.amount))}\n` +
-            `📁 分類: ${transaction.category}\n` +
-            `📅 日期: ${transaction.date.toLocaleDateString('zh-TW')}\n\n` +
-            `📊 本月「${transaction.category}」${typeText}: ${formatAmount(Number(totalAmount))}`,
+    // 使用 Flex Message 卡片回覆
+    const flexMessage = createTransactionCard({
+      id: transaction.id,
+      type: parsed.type as 'INCOME' | 'EXPENSE',
+      amount: Number(transaction.amount),
+      category: transaction.category,
+      description: transaction.description,
+      date: transaction.date,
+      monthlyTotal: Number(totalAmount),
     });
+
+    await lineClient.replyMessage(event.replyToken, [
+      flexMessage,
+      {
+        type: 'text',
+        text: '還想做什麼呢？',
+        quickReply: mainMenuQuickReply,
+      },
+    ]);
     
   } catch (error) {
     console.error('Error creating transaction:', error);

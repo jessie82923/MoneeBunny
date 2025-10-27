@@ -34,9 +34,6 @@ export class TransactionService {
     async getTransactionsByUserId(userId: string): Promise<Transaction[]> {
         return await prisma.transaction.findMany({
             where: { userId },
-            include: {
-                budget: true
-            },
             orderBy: {
                 date: 'desc'
             }

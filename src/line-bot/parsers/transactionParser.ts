@@ -2,12 +2,7 @@
  * Transaction Parser - 解析用戶記帳訊息
  */
 
-export interface ParsedTransaction {
-  type: 'EXPENSE' | 'INCOME';
-  amount: number;
-  category?: string;
-  description?: string;
-}
+import type { ParsedTransaction } from '../types';
 
 /**
  * 分類關鍵字映射
@@ -150,3 +145,6 @@ function isIncomeKeyword(keyword: string): boolean {
 export function formatAmount(amount: number): string {
   return `NT$${amount.toLocaleString()}`;
 }
+
+// Re-export type for external use
+export type { ParsedTransaction } from '../types';
